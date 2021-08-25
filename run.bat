@@ -1,0 +1,1 @@
+c:\Python27\python.exe pacman.py -p ExpectimaxAgent -l minimaxClassic -a depth=3
