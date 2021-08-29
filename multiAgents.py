@@ -170,8 +170,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
           cost = self.get_min(successor, depth, agent + 1)[0]
 
       if cost < successorCost:
-          successorCost = cost
-          successorAction = action
+        successorCost = cost
+        successorAction = action
     return successorCost, successorAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -234,14 +234,12 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
   """
 
   def getAction(self, gameState):
-
     depth = 0
     return self.get_max(gameState, depth)[1]
-  # alpha = max best option
-  # beta = min best
-  def get_max(self, gameState, depth, agent = 0, alpha=float('-inf'), beta=float('inf')):
+
+  def get_max(self, gameState, depth, agent = 0):
     actions = gameState.getLegalActions(agent)
-    successorCost = alpha
+    successorCost = 0
     successorAction = Directions.STOP
     if not actions or gameState.isWin() or depth >= self.depth:
       return self.evaluationFunction(gameState), Directions.STOP
@@ -249,40 +247,31 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
     for action in actions:
       successor = gameState.generateSuccessor(agent, action)
 
-      cost = self.get_min(successor, depth, agent + 1, alpha=successorCost, beta=beta)[0]
+      cost = self.get_min(successor, depth, agent + 1)[0]
 
       if cost > successorCost:
         successorCost = cost
-        successorAction = action
-        alpha = successorCost
-      if successorCost >= beta: # PODA
-        return successorCost, successorAction
-  
+        successorAction = action  
     return successorCost, successorAction
 
-  def get_min(self, gameState, depth, agent, alpha=float('-inf'), beta=float('inf')):
+  def get_min(self, gameState, depth, agent):
     actions = gameState.getLegalActions(agent)
 
     if not actions or gameState.isLose() or depth >= self.depth:
       return self.evaluationFunction(gameState), Directions.STOP
 
-    successorCost = beta
     successorAction = Directions.STOP
-
+    expectMax = 0.0
     for action in actions:
       successor = gameState.generateSuccessor(agent, action)
 
       if agent == gameState.getNumAgents() - 1:
-        cost = self.get_max(successor, depth + 1, alpha=alpha, beta=beta)[0]
+        cost = self.get_max(successor, depth + 1)[0]
       else:
-        cost = self.get_min(successor, depth, agent + 1, alpha=alpha, beta=successorCost)[0]
-      if cost < successorCost:
-        successorCost = cost
-        successorAction = action
-        beta = successorCost
-      if successorCost <= alpha: # PODA
-        return successorCost, successorAction
-    return successorCost, successorAction
+        cost = self.get_min(successor, depth, agent + 1)[0]
+      expectMax += cost
+    expectMax = float(expectMax) / len(action) + 1
+    return expectMax, successorAction
 
 def betterEvaluationFunction(currentGameState):
     """
