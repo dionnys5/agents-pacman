@@ -75,11 +75,11 @@ class ReflexAgent(Agent):
         pelletPositions = successorGameState.getCapsules()
         pelletScore = 0
         if len(pelletPositions) > 0:
-          pelletScore = 100 * float(min([manhattanDistance(newPos, pelletPosition) for pelletPosition  in pelletPositions]))
+          pelletScore = 10 * (float(min([manhattanDistance(newPos, pelletPosition) for pelletPosition  in pelletPositions]))/1)
 
         min_food_dist = float(min([10000000000] + [manhattanDistance(newPos, foodPos) for foodPos  in newFood.asList()]))
         foodScore = 1/min_food_dist
-        foodScore = foodScore**2
+        foodScore = 2 * foodScore
 
         ghostScore = 0
         score = (successorGameState.getScore() - currentGameState.getScore()) + foodScore
@@ -87,10 +87,10 @@ class ReflexAgent(Agent):
           dist_ghost = manhattanDistance(ghost.getPosition(), newPos)
           if newScaredTimes[0] > 0:
             ghostScore = (1/dist_ghost) * 100
-            return score + pelletScore + ghostScore
+            return score + ghostScore
           else:
             if dist_ghost <= 2:
-              ghostScore = dist_ghost * 1000
+              ghostScore = dist_ghost * 100
 
         return score - pelletScore - ghostScore
 
@@ -232,15 +232,13 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
   """
     Your expectimax agent (question 4)
   """
-
   def getAction(self, gameState):
     depth = 0
     return self.get_max(gameState, depth)[1]
 
   def get_max(self, gameState, depth, agent = 0):
     actions = gameState.getLegalActions(agent)
-    successorCost = 0
-    successorAction = Directions.STOP
+    successorCost = float('-inf')
     if not actions or gameState.isWin() or depth >= self.depth:
       return self.evaluationFunction(gameState), Directions.STOP
 
@@ -270,7 +268,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       else:
         cost = self.get_min(successor, depth, agent + 1)[0]
       expectMax += cost
-    expectMax = float(expectMax) / len(action) + 1
+    expectMax = float(expectMax) / len(action)
     return expectMax, successorAction
 
 def betterEvaluationFunction(currentGameState):
